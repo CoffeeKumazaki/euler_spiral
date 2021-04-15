@@ -1,15 +1,18 @@
 #include <stdafx.hpp>
 #include "imgui_helper.hpp"
+#include <euler_spiral.hpp>
 
 
 int main(int argc, char const *argv[]) {
 
-	initImgui();
+	int w = 1280;
+	int h = 720;
+	std::string title = "Euler Spiral demo";
+	initImgui(w, h, title);
 
 	// Our state
-	bool show_demo_window = true;
-	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	ImVec4 edge_color = ImVec4(255.0/255.0, 255.0/255.0f, 255.0f/255.0, 1.00f);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -26,42 +29,52 @@ int main(int argc, char const *argv[]) {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-		if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);
+		static float length = 300.0;
+		static float initCurv = 1;
+		static float dCurv = 1;
+		static float thetadeg = 0;
+		std::vector<es::SpiralPoint> pos;
+		for (double s = 0.0; s < length; s += 1.0) {
+			es::SpiralPoint p;
+			p = es::calc(s, dCurv*0.0001, initCurv*0.001, w/2.0, h/2.0, deg2rad(thetadeg));
+			pos.push_back(p);
+			// std::cout << p.x << " " << p.y << std::endl;
+		}
+
 
 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 		{
 			static float f = 0.0f;
 			static int counter = 0;
 
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+			ImGuiWindowFlags window_flags = 0;
+			window_flags |= ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoResize;
+			window_flags |= ImGuiWindowFlags_NoCollapse;
+			window_flags |= ImGuiWindowFlags_NoBackground;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+			ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowSize(ImVec2(w, h), ImGuiCond_FirstUseEver);
 
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
+			ImGui::Begin("Euler Spiral", nullptr, window_flags);
+			ImGui::SliderFloat("Length", &length, 1, 1000);
+			ImGui::SliderFloat("Init curvature", &initCurv, 0, 10);
+			ImGui::SliderFloat("d curvature (x1000)", &dCurv, 0, 10);
+			ImGui::SliderFloat("Initial Theta (deg)", &thetadeg, 0, 360);
 
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+			ImDrawList *draw_list = ImGui::GetWindowDrawList();
 
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
+			for (size_t i = 0; i < pos.size()-1; i++) {
+				draw_list->AddLine(
+						ImVec2(pos[i].x, pos[i].y), 
+						ImVec2(pos[i+1].x, pos[i+1].y), 
+						ImColor(edge_color)
+				);
+			}
 
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
 		}
 
-		// 3. Show another simple window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
-			ImGui::End();
-		}
 
 		// Rendering
 		ImGui::Render();

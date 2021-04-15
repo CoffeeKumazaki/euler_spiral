@@ -1,4 +1,4 @@
-# cpp_gui_template
+# Euler Spiral
 
 ## build & run demo
 

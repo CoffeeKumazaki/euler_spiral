@@ -28,10 +28,11 @@ add_library(imgui STATIC
 )
 
 ## Define libraries
-# target_include_directories(${PROJECT_NAME}_lib include)
-# add_library(${PROJECT_NAME}_lib
-# 
-#)
+add_library(${PROJECT_NAME}_lib
+  src/euler_spiral.cpp
+  src/fresnel_integral.cpp
+)
+target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
 
 ## Define the executable
 set(SRCS 
@@ -46,4 +47,5 @@ target_link_libraries(${PROJECT_NAME}
   glew
   glfw 
   ${OPENGL_gl_LIBRARY} 
+  ${PROJECT_NAME}_lib
 )
