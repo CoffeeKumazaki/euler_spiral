@@ -58,8 +58,8 @@ int main(int argc, char const *argv[]) {
 
 			ImGui::Begin("Euler Spiral", nullptr, window_flags);
 			ImGui::SliderFloat("Length", &length, 1, 1000);
-			ImGui::SliderFloat("Init curvature", &initCurv, 0, 10);
-			ImGui::SliderFloat("d curvature (x1000)", &dCurv, 0, 10);
+			ImGui::SliderFloat("Init curvature", &initCurv, -10, 10);
+			ImGui::SliderFloat("d curvature (x1000)", &dCurv, -10, 10);
 			ImGui::SliderFloat("Initial Theta (deg)", &thetadeg, 0, 360);
 
 			ImDrawList *draw_list = ImGui::GetWindowDrawList();

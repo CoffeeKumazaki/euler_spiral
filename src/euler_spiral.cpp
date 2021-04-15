@@ -40,11 +40,12 @@ SpiralPoint calc(double length, double dCurv, double initCurv /*= 1000.0*/, doub
     pos.x = M_PI * a * (x * cos(theta) + y * sin(theta));
     pos.y = M_PI * a * (x * sin(theta) - y * cos(theta));
 
+    if (dCurv < 0.0)
+      pos.x *= -1.0;
+
     pos.x += initX;
     pos.y += initY;
 
-    if (dCurv < 0.0)
-      pos.y *= -1.0;
 
   }
 
