@@ -5,12 +5,12 @@
 namespace es
 {
   
-SpiralPoint calcFromCurvature(double length, double curvStart, double curvEnd, double initX /*= 0.0*/, double initY /*= 0.0*/, double initTheta /*= 0.0*/) {
+SpiralPoint getEndPointFromCurvature(double length, double curvStart, double curvEnd, double initX /*= 0.0*/, double initY /*= 0.0*/, double initTheta /*= 0.0*/) {
 
-  return calc(length, (curvEnd - curvStart) / length, curvStart, initX, initY, initTheta);
+  return getEndPoint(length, (curvEnd - curvStart) / length, curvStart, initX, initY, initTheta);
 }
 
-SpiralPoint calc(double length, double dCurv, double initCurv /*= 1000.0*/, double initX /*= 0.0*/, double initY /*= 0.0*/, double initTheta /*= 0.0*/) {
+SpiralPoint getEndPoint(double length, double dCurv, double initCurv /*= 1000.0*/, double initX /*= 0.0*/, double initY /*= 0.0*/, double initTheta /*= 0.0*/) {
 
   SpiralPoint pos;
 
