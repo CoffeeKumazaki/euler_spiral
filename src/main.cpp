@@ -36,7 +36,7 @@ int main(int argc, char const *argv[]) {
 		std::vector<es::SpiralPoint> pos;
 		for (double s = 0.0; s < length; s += 1.0) {
 			es::SpiralPoint p;
-			p = es::calc(s, dCurv*0.0001, initCurv*0.001, w/2.0, h/2.0, deg2rad(thetadeg));
+			p = es::getEndPoint(s, dCurv*0.0001, initCurv*0.001, w/2.0, h/2.0, deg2rad(thetadeg));
 			pos.push_back(p);
 			// std::cout << p.x << " " << p.y << std::endl;
 		}
