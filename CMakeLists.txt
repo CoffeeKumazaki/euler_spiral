@@ -15,8 +15,11 @@ find_package(OpenGL REQUIRED)
 find_package(boost REQUIRED)
 add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLEW)
 include_directories(/usr/local/opt/glew/include)
+include_directories(/opt/homebrew/opt/glew/include)
 include_directories(/usr/local/opt/glfw/include)
+include_directories(/opt/homebrew/opt/glfw/include)
 link_directories(/usr/local/lib)
+link_directories(/opt/homebrew/lib)
 
 ## add imgui as a library
 add_library(imgui STATIC
