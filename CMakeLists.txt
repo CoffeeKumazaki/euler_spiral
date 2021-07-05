@@ -12,6 +12,7 @@ project(${PROJECT_NAME})
 # include_directories(include)
 
 find_package(OpenGL REQUIRED)
+find_package(boost REQUIRED)
 add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLEW)
 include_directories(/usr/local/opt/glew/include)
 include_directories(/usr/local/opt/glfw/include)
@@ -32,7 +33,10 @@ add_library(${PROJECT_NAME}_lib
   src/euler_spiral.cpp
   src/fresnel_integral.cpp
 )
-target_include_directories(${PROJECT_NAME}_lib PUBLIC include)
+target_include_directories(${PROJECT_NAME}_lib PUBLIC 
+  include
+  ${Boost_INCLUDE_DIRS} 
+)
 
 ## Define the executable
 set(SRCS 
@@ -47,5 +51,25 @@ target_link_libraries(${PROJECT_NAME}
   glew
   glfw 
   ${OPENGL_gl_LIBRARY} 
+  ${PROJECT_NAME}_lib
+)
+
+add_executable(${PROJECT_NAME}_test 
+  test/euler_spiral_test.cpp
+)
+target_include_directories(${PROJECT_NAME}_test PUBLIC
+  include
+)
+target_link_libraries(${PROJECT_NAME}_test 
+  ${PROJECT_NAME}_lib
+)
+
+add_executable(biarc_test 
+  test/biarc_test.cpp
+)
+target_include_directories(biarc_test PUBLIC
+  include
+)
+target_link_libraries(biarc_test
   ${PROJECT_NAME}_lib
 )
