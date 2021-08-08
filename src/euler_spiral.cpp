@@ -35,11 +35,10 @@ SpiralPoint getEndPoint(double length, double dCurv, double initCurv /*= 1000.0*
     double y = fresnel_sin_integral((initCurv + dCurv * length) * a) - fresnel_sin_integral(initCurv * a);
 
     double theta = initTheta - initCurv * initCurv * 0.5 / dCurv;
+    if (dCurv < 0.0) x *= -1.0;
     pos.x = M_PI * a * (x * cos(theta) - y * sin(theta));
     pos.y = M_PI * a * (x * sin(theta) + y * cos(theta));
 
-    if (dCurv < 0.0)
-      pos.x *= -1.0;
   }
 
   pos.x += initX;
