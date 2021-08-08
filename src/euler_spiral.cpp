@@ -194,7 +194,7 @@ SpiralParameter solveIteratively(const SpiralPoint& start, const SpiralPoint& go
       break;
     }
 
-    std::vector<double> errors(4);
+    std::vector<double> errors = {__DBL_MAX__, __DBL_MAX__, __DBL_MAX__, __DBL_MAX__};
     SpiralParameter stepParam;
     stepParam.length = estL;
 
@@ -230,7 +230,7 @@ SpiralParameter solveIteratively(const SpiralPoint& start, const SpiralPoint& go
       estL -= errorStep;
     }
     prevError = error;
-    std::cout << "## est erro l k " << error << " " << estL << " " << estK << std::endl;
+    // std::cout << "## est erro l k " << error << " " << estL << " " << estK << std::endl;
   }
 
   SpiralParameter res;

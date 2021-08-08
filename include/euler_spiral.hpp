@@ -9,9 +9,9 @@ struct SpiralPoint {
 };
 
 struct SpiralParameter {
-  double length;
-  double initCurv;
-  double dCurv;
+  double length    = 0.0;
+  double initCurv  = 0.0;
+  double dCurv     = 0.0;
 };
 
 enum ShapeType
