@@ -240,7 +240,7 @@ SpiralParameter solveIteratively(const SpiralPoint& start, const SpiralPoint& go
   return res;
 }
 
-SpiralParameter getParameter(const SpiralPoint& start, const SpiralPoint& goal, SpiralParameter* init) {
+SpiralParameter getParameter(const SpiralPoint& start, const SpiralPoint& goal, SpiralParameter* init, size_t maxItrNum) {
 
   SpiralParameter est, p2;
   ShapeType stype = calcInitialEstimate(start, goal, est, p2);
@@ -249,7 +249,7 @@ SpiralParameter getParameter(const SpiralPoint& start, const SpiralPoint& goal, 
     *init = est;
   
   if (stype == BIARC) {
-    est = solveIteratively(start, goal, est, 100000);
+    est = solveIteratively(start, goal, est, maxItrNum);
 
     est.dCurv = 2.0 * (goal.t - start.t - (est.initCurv * est.length)) / est.length / est.length;
   }

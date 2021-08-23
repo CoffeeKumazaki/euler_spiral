@@ -76,3 +76,13 @@ target_include_directories(biarc_test PUBLIC
 target_link_libraries(biarc_test
   ${PROJECT_NAME}_lib
 )
+
+add_executable(demo 
+  demo/demo_parameter_estimation.cpp
+)
+target_include_directories(demo PUBLIC
+  include
+)
+target_link_libraries(demo
+  ${PROJECT_NAME}_lib
+)

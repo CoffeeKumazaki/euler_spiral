@@ -24,7 +24,7 @@ enum ShapeType
 
 SpiralPoint getEndPoint(double length, double dCurv, double initCurv = 0.0, double initX = 0.0, double initY = 0.0, double initTheta = 0.0);
 SpiralPoint getEndPointFromCurvature(double length, double curvStart, double curvEnd, double initX = 0.0, double initY = 0.0, double initTheta = 0.0);
-SpiralParameter getParameter(const SpiralPoint& start, const SpiralPoint& goal, SpiralParameter* init = NULL);
+SpiralParameter getParameter(const SpiralPoint& start, const SpiralPoint& goal, SpiralParameter* init = NULL, size_t maxItrNum = 100000);
 ShapeType calcBiarcSolution(const SpiralPoint &start, const SpiralPoint &goal, SpiralParameter &p1, SpiralParameter &p2);
 
 } // namespace es
