@@ -24,6 +24,11 @@ This libraly provides two functions.
   SpiralParameter getParameter(const SpiralPoint& start, const SpiralPoint& goal, SpiralParameter* init = NULL);
   ```
 
+  #### \<demo\>
+
+
+  ![demo](demo/demo.gif)
+
 ## build & run demo
 
 ```
