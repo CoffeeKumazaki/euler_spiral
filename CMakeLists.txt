@@ -86,3 +86,13 @@ target_include_directories(demo PUBLIC
 target_link_libraries(demo
   ${PROJECT_NAME}_lib
 )
+
+add_executable(demo_anime
+  demo/demo_parameter_estimation_anime.cpp
+)
+target_include_directories(demo_anime PUBLIC
+  include
+)
+target_link_libraries(demo_anime
+  ${PROJECT_NAME}_lib
+)

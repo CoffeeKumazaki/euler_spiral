@@ -27,6 +27,7 @@ This libraly provides two functions.
   #### \<demo\>
 
 
+  ![demo](demo/demo.png)
   ![demo](demo/demo.gif)
 
 ## build & run demo
