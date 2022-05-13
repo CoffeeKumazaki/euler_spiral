@@ -21,16 +21,6 @@ include_directories(/opt/homebrew/opt/glfw/include)
 link_directories(/usr/local/lib)
 link_directories(/opt/homebrew/lib)
 
-## add imgui as a library
-add_library(imgui STATIC
-  src/imgui/imgui.cpp
-  src/imgui/imgui_demo.cpp
-  src/imgui/imgui_draw.cpp
-  src/imgui/imgui_widgets.cpp
-  src/imgui/imgui_impl_glfw.cpp
-  src/imgui/imgui_impl_opengl3.cpp
-)
-
 ## Define libraries
 add_library(${PROJECT_NAME}_lib
   src/euler_spiral.cpp
@@ -39,60 +29,4 @@ add_library(${PROJECT_NAME}_lib
 target_include_directories(${PROJECT_NAME}_lib PUBLIC 
   include
   ${Boost_INCLUDE_DIRS} 
-)
-
-## Define the executable
-set(SRCS 
-  src/main.cpp
-)
-add_executable(${PROJECT_NAME} ${SRCS})
-target_include_directories(${PROJECT_NAME} PUBLIC
-  include
-)
-target_link_libraries(${PROJECT_NAME} 
-  imgui
-  glew
-  glfw 
-  ${OPENGL_gl_LIBRARY} 
-  ${PROJECT_NAME}_lib
-)
-
-add_executable(${PROJECT_NAME}_test 
-  test/euler_spiral_test.cpp
-)
-target_include_directories(${PROJECT_NAME}_test PUBLIC
-  include
-)
-target_link_libraries(${PROJECT_NAME}_test 
-  ${PROJECT_NAME}_lib
-)
-
-add_executable(biarc_test 
-  test/biarc_test.cpp
-)
-target_include_directories(biarc_test PUBLIC
-  include
-)
-target_link_libraries(biarc_test
-  ${PROJECT_NAME}_lib
-)
-
-add_executable(demo 
-  demo/demo_parameter_estimation.cpp
-)
-target_include_directories(demo PUBLIC
-  include
-)
-target_link_libraries(demo
-  ${PROJECT_NAME}_lib
-)
-
-add_executable(demo_anime
-  demo/demo_parameter_estimation_anime.cpp
-)
-target_include_directories(demo_anime PUBLIC
-  include
-)
-target_link_libraries(demo_anime
-  ${PROJECT_NAME}_lib
 )
