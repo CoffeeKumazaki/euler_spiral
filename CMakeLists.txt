@@ -11,15 +11,7 @@ project(${PROJECT_NAME})
 
 # include_directories(include)
 
-find_package(OpenGL REQUIRED)
 find_package(Boost REQUIRED)
-add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLEW)
-include_directories(/usr/local/opt/glew/include)
-include_directories(/opt/homebrew/opt/glew/include)
-include_directories(/usr/local/opt/glfw/include)
-include_directories(/opt/homebrew/opt/glfw/include)
-link_directories(/usr/local/lib)
-link_directories(/opt/homebrew/lib)
 
 ## Define libraries
 add_library(${PROJECT_NAME}_lib

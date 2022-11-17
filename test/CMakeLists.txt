@@ -11,8 +11,17 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 project(${PROJECT_NAME})
 
 # include_directories(include)
-
 add_subdirectory(.. ${PROJECT_NAME}_lib)
+
+find_package(OpenGL REQUIRED)
+add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLEW)
+
+include_directories(/opt/homebrew/opt/glew/include)
+include_directories(/opt/homebrew/opt/glfw/include)
+link_directories(/opt/homebrew/lib)
+link_directories(/usr/local/lib)
+include_directories(/usr/local/opt/glew/include)
+include_directories(/usr/local/opt/glfw/include)
 
 ## add imgui as a library
 add_library(imgui STATIC
