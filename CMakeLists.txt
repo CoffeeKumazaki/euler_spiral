@@ -12,7 +12,7 @@ project(${PROJECT_NAME})
 # include_directories(include)
 
 find_package(OpenGL REQUIRED)
-find_package(boost REQUIRED)
+find_package(Boost REQUIRED)
 add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLEW)
 include_directories(/usr/local/opt/glew/include)
 include_directories(/opt/homebrew/opt/glew/include)
