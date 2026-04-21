@@ -10,21 +10,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 project(${PROJECT_NAME})
 
+add_subdirectory(.. ${PROJECT_NAME}_lib)
+
 ## OpenGL/GLEW/GLFW dependencies (only needed for GUI targets)
 find_package(OpenGL REQUIRED)
 add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLEW)
-include_directories(/usr/local/opt/glew/include)
-include_directories(/usr/local/opt/glfw/include)
-link_directories(/usr/local/lib)
 
-include_directories(../include)
-
-# for m1 mac
 include_directories(/opt/homebrew/opt/glew/include)
 include_directories(/opt/homebrew/opt/glfw/include)
 link_directories(/opt/homebrew/lib)
-
-add_subdirectory(.. ${PROJECT_NAME}_lib)
+link_directories(/usr/local/lib)
+include_directories(/usr/local/opt/glew/include)
+include_directories(/usr/local/opt/glfw/include)
 
 ## add imgui as a library
 add_library(imgui STATIC
@@ -46,7 +43,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 target_link_libraries(${PROJECT_NAME}
   imgui
-  glew
+  GLEW
   glfw
   ${OPENGL_gl_LIBRARY}
   ${PROJECT_NAME}_lib

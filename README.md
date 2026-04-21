@@ -35,7 +35,7 @@ This library provides two functions.
 ```
 $ mkdir build
 $ cd build
-$ cmake ..
+$ cmake ../test
 $ make
 ```
 
