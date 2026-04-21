@@ -2,8 +2,8 @@
 
 An Euler spiral (clothoid) is a curve whose curvature changes linearly with its curve length.
 
-This libraly provides two functions. 
-- calculate the endpoint of Euler spiral at given length with given curveture deviation.
+This library provides two functions.
+- calculate the endpoint of Euler spiral at given length with given curvature deviation.
 
   ```cpp
   struct SpiralPoint {
@@ -21,7 +21,7 @@ This libraly provides two functions.
     double dCurv;
   };
 
-  SpiralParameter getParameter(const SpiralPoint& start, const SpiralPoint& goal, SpiralParameter* init = NULL);
+  SpiralParameter getParameter(const SpiralPoint& start, const SpiralPoint& goal, SpiralParameter* init = nullptr, size_t maxItrNum = 100000);
   ```
 
   #### \<demo\>

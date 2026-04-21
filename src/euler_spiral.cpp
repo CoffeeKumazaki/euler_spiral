@@ -1,43 +1,69 @@
 #include <stdafx.hpp>
-#include <boost/math/tools/minima.hpp>
 #include <euler_spiral.hpp>
 #include <fresnel_integral.hpp>
+#include <limits>
 
 namespace es
 {
-  
+
+static constexpr double kEpsilon = 1.0e-10;
+static constexpr double kConvergenceThreshold = 1.0e-5;
+static constexpr double kInitialStepSize = 0.1;
+static constexpr double kLargeError = 1.0e9;
+
+static bool isNearZero(double v) {
+  return std::fabs(v) < kEpsilon;
+}
+
 SpiralPoint getEndPointFromCurvature(double length, double curvStart, double curvEnd, double initX /*= 0.0*/, double initY /*= 0.0*/, double initTheta /*= 0.0*/) {
+
+  if (length <= 0.0 || std::isnan(length) || std::isinf(length)) {
+    SpiralPoint pos;
+    pos.x = initX;
+    pos.y = initY;
+    pos.t = initTheta;
+    return pos;
+  }
 
   return getEndPoint(length, (curvEnd - curvStart) / length, curvStart, initX, initY, initTheta);
 }
 
-SpiralPoint getEndPoint(double length, double dCurv, double initCurv /*= 1000.0*/, double initX /*= 0.0*/, double initY /*= 0.0*/, double initTheta /*= 0.0*/) {
+SpiralPoint getEndPoint(double length, double dCurv, double initCurv /*= 0.0*/, double initX /*= 0.0*/, double initY /*= 0.0*/, double initTheta /*= 0.0*/) {
+
+  if (std::isnan(length) || std::isinf(length) || std::isnan(dCurv) || std::isinf(dCurv) ||
+      std::isnan(initCurv) || std::isinf(initCurv)) {
+    SpiralPoint pos;
+    pos.x = initX;
+    pos.y = initY;
+    pos.t = initTheta;
+    return pos;
+  }
 
   SpiralPoint pos;
 
-  if (dCurv == 0.0 && initCurv == 0.0) {
+  if (isNearZero(dCurv) && isNearZero(initCurv)) {
     // Straight line.
-    pos.x = length * cos(initTheta);
-    pos.y = length * sin(initTheta);
+    pos.x = length * std::cos(initTheta);
+    pos.y = length * std::sin(initTheta);
   }
-  else if (dCurv == 0.0 && initCurv != 0.0) {
+  else if (isNearZero(dCurv)) {
     // Arc
-    double x = sin(initCurv * length) / initCurv;
-    double y = (1.0 - cos(initCurv * length) ) / initCurv;
+    double x = std::sin(initCurv * length) / initCurv;
+    double y = (1.0 - std::cos(initCurv * length) ) / initCurv;
 
-    pos.x = x * cos(initTheta) - y * sin(initTheta);
-    pos.y = x * sin(initTheta) + y * cos(initTheta);
+    pos.x = x * std::cos(initTheta) - y * std::sin(initTheta);
+    pos.y = x * std::sin(initTheta) + y * std::cos(initTheta);
   }
   else {
-    double a = 1.0 / sqrt(M_PI * abs(dCurv));
+    double a = 1.0 / std::sqrt(M_PI * std::fabs(dCurv));
 
     double x = fresnel_cos_integral((initCurv + dCurv * length) * a) - fresnel_cos_integral(initCurv * a);
     double y = fresnel_sin_integral((initCurv + dCurv * length) * a) - fresnel_sin_integral(initCurv * a);
 
     double theta = initTheta - initCurv * initCurv * 0.5 / dCurv;
     if (dCurv < 0.0) x *= -1.0;
-    pos.x = M_PI * a * (x * cos(theta) - y * sin(theta));
-    pos.y = M_PI * a * (x * sin(theta) + y * cos(theta));
+    pos.x = M_PI * a * (x * std::cos(theta) - y * std::sin(theta));
+    pos.y = M_PI * a * (x * std::sin(theta) + y * std::cos(theta));
 
   }
 
@@ -69,9 +95,15 @@ double calcArcLen(double t0, double t1, double curv) {
 
 double calcJoinTheta(const SpiralPoint& start, const SpiralPoint& goal, double kStart, double kGoal) {
 
+  double denom = kGoal - kStart;
+  if (isNearZero(denom)) {
+    // Equal curvatures: return angle of chord as fallback.
+    return getAngleOfVector(goal.x - start.x, goal.y - start.y);
+  }
+
   return getAngleOfVector(
-      (-kStart * kGoal * (goal.y - start.y) + kGoal * cos(start.t) - kStart * cos(goal.t)) / (kGoal - kStart), 
-      ( kStart * kGoal * (goal.x - start.x) + kGoal * sin(start.t) - kStart * sin(goal.t)) / (kGoal - kStart));
+      (-kStart * kGoal * (goal.y - start.y) + kGoal * std::cos(start.t) - kStart * std::cos(goal.t)) / denom,
+      ( kStart * kGoal * (goal.x - start.x) + kGoal * std::sin(start.t) - kStart * std::sin(goal.t)) / denom);
 }
 
 
@@ -82,7 +114,19 @@ ShapeType calcBiarcSolution(const SpiralPoint& start, const SpiralPoint& goal, S
   double dx = goal.x - start.x;
   double dy = goal.y - start.y;
 
-  double L = sqrt(dx*dx + dy*dy);
+  double L = std::sqrt(dx*dx + dy*dy);
+
+  // Same point: treat as zero-length line.
+  if (isNearZero(L)) {
+    p1.initCurv = 0.0;
+    p1.dCurv = 0.0;
+    p1.length = 0.0;
+    p2.initCurv = 0.0;
+    p2.dCurv = 0.0;
+    p2.length = 0.0;
+    return LINE;
+  }
+
   double angle = getAngleOfVector(dx, dy);
   double angle_mean = (start.t + goal.t) * 0.5;
 
@@ -93,28 +137,26 @@ ShapeType calcBiarcSolution(const SpiralPoint& start, const SpiralPoint& goal, S
     angle_mean += 2.0 * M_PI;
   }
 
-  if (angle == angle_mean) {
+  if (isNearZero(angle - angle_mean)) {
     double k1 = 0.0;
     double k2 = 0.0;
     double L1 = 0.0;
     double L2 = 0.0;
-    if (angle == start.t) {
+    if (isNearZero(angle - start.t)) {
       // Straight line.
       type = LINE;
       k1 = k2 = 0.0;
       L2 = L1 = 0.5 * L;
-      std::cout << "# straight" << std::endl;
     }
     else {
       // Same Arc.
       type = ARC;
-      std::cout << "# Arc" << std::endl;
-      k2 = k1 = -2.0 * sin(0.5 * (start.t - goal.t)) / L;
-      if (angle_mean == 0.0) {
+      k2 = k1 = -2.0 * std::sin(0.5 * (start.t - goal.t)) / L;
+      if (isNearZero(angle_mean)) {
         L2 = L1 = 0.25 * M_PI * L;
       }
       else {
-        L2 = L1 = L * (goal.t + start.t)/ 4.0 / sin(angle_mean);
+        L2 = L1 = L * (goal.t + start.t)/ 4.0 / std::sin(angle_mean);
       }
     }
 
@@ -126,23 +168,22 @@ ShapeType calcBiarcSolution(const SpiralPoint& start, const SpiralPoint& goal, S
     p2.length = L2;
   }
   else {
-    std::cout << "# biarc" << std::endl;
     // biarc.
     type = BIARC;
-    double k1 = -4.0 * sin((3.0 * start.t + goal.t) / 4.0 - angle) * cos((goal.t - start.t) / 4.0) / L;
-    double k2 =  4.0 * sin((start.t + 3.0 * goal.t) / 4.0 - angle) * cos((goal.t - start.t) / 4.0) / L;
-    double k3 =  4.0 * cos((3.0 * start.t + goal.t) / 4.0 - angle) * sin((goal.t - start.t) / 4.0) / L;
-    double k4 =  4.0 * cos((start.t + 3.0 * goal.t) / 4.0 - angle) * sin((goal.t - start.t) / 4.0) / L;
+    double k1 = -4.0 * std::sin((3.0 * start.t + goal.t) / 4.0 - angle) * std::cos((goal.t - start.t) / 4.0) / L;
+    double k2 =  4.0 * std::sin((start.t + 3.0 * goal.t) / 4.0 - angle) * std::cos((goal.t - start.t) / 4.0) / L;
+    double k3 =  4.0 * std::cos((3.0 * start.t + goal.t) / 4.0 - angle) * std::sin((goal.t - start.t) / 4.0) / L;
+    double k4 =  4.0 * std::cos((start.t + 3.0 * goal.t) / 4.0 - angle) * std::sin((goal.t - start.t) / 4.0) / L;
 
     double theta_join = calcJoinTheta(start, goal, k1, k2);
-    double L1 = k1 == 0 ? L * sin(0.5 * (goal.t + start.t) - angle) / sin(0.5 * (start.t - goal.t)) : calcArcLen(start.t, theta_join, k1);
-    double L2 = k2 == 0 ? L * sin(0.5 * (goal.t + start.t) - angle) / sin(0.5 * (start.t - goal.t)) : calcArcLen(theta_join, goal.t, k2);
+    double L1 = isNearZero(k1) ? L * std::sin(0.5 * (goal.t + start.t) - angle) / std::sin(0.5 * (start.t - goal.t)) : calcArcLen(start.t, theta_join, k1);
+    double L2 = isNearZero(k2) ? L * std::sin(0.5 * (goal.t + start.t) - angle) / std::sin(0.5 * (start.t - goal.t)) : calcArcLen(theta_join, goal.t, k2);
 
     theta_join = calcJoinTheta(start, goal, k3, k4);
-    double L3 = k3 == 0 ? L * sin(0.5 * (goal.t + start.t) - angle) / sin(0.5 * (goal.t - start.t)) : calcArcLen(start.t, theta_join, k3);
-    double L4 = k4 == 0 ? L * sin(0.5 * (goal.t + start.t) - angle) / sin(0.5 * (start.t - goal.t)) : calcArcLen(theta_join, goal.t, k4);
+    double L3 = isNearZero(k3) ? L * std::sin(0.5 * (goal.t + start.t) - angle) / std::sin(0.5 * (goal.t - start.t)) : calcArcLen(start.t, theta_join, k3);
+    double L4 = isNearZero(k4) ? L * std::sin(0.5 * (goal.t + start.t) - angle) / std::sin(0.5 * (start.t - goal.t)) : calcArcLen(theta_join, goal.t, k4);
 
-    if (L1+L2 < L3+L4 || goal.t == start.t) {
+    if (L1+L2 < L3+L4 || isNearZero(goal.t - start.t)) {
       p1.length = L1;
       p2.length = L2;
       p1.initCurv = k1;
@@ -160,7 +201,7 @@ ShapeType calcBiarcSolution(const SpiralPoint& start, const SpiralPoint& goal, S
 }
 
 ShapeType calcInitialEstimate(const SpiralPoint& start, const SpiralPoint& goal, SpiralParameter& p1, SpiralParameter& p2) {
-  
+
   ShapeType type = calcBiarcSolution(start, goal, p1, p2);
   p1.length += p2.length;
   return type;
@@ -174,33 +215,32 @@ double computeError(const SpiralPoint& start, const SpiralPoint& goal, const Spi
   double dy = est.y - goal.y;
   double dt = 0.0;
    // est.t - goal.t;
-  double error = sqrt(dx * dx + dy * dy + abs(dt));
+  double error = std::sqrt(dx * dx + dy * dy + std::fabs(dt));
   return error;
 }
 
-SpiralParameter solveIteratively(const SpiralPoint& start, const SpiralPoint& goal, const SpiralParameter& initParam, double num_itr) {
+SpiralParameter solveIteratively(const SpiralPoint& start, const SpiralPoint& goal, const SpiralParameter& initParam, size_t num_itr) {
 
   double error = computeError(start, goal, initParam);
-  double prevError = 1.0e9;
-  double errorStep = 0.1;
-  double epsilon = 1.0e-5;
-  double epsError = 0.1;
-  
+  double prevError = kLargeError;
+  double errorStep = kInitialStepSize;
+
   double estK = initParam.initCurv;
   double estL = initParam.length;
 
   for (size_t i = 0; i < num_itr; i++) {
-    if (error < epsilon) {
+    if (error < kConvergenceThreshold) {
       break;
     }
 
-    std::vector<double> errors = {__DBL_MAX__, __DBL_MAX__, __DBL_MAX__, __DBL_MAX__};
+    std::array<double, 4> errors;
+    errors.fill(std::numeric_limits<double>::max());
     SpiralParameter stepParam;
     stepParam.length = estL;
 
     stepParam.initCurv = estK + errorStep; errors[0] = computeError(start, goal, stepParam);
     stepParam.initCurv = estK - errorStep; errors[1] = computeError(start, goal, stepParam);
-    
+
     stepParam.initCurv = estK;
     stepParam.length   = estL + errorStep; errors[2] = computeError(start, goal, stepParam);
 
@@ -230,7 +270,6 @@ SpiralParameter solveIteratively(const SpiralPoint& start, const SpiralPoint& go
       estL -= errorStep;
     }
     prevError = error;
-    // std::cout << "## est erro l k " << error << " " << estL << " " << estK << std::endl;
   }
 
   SpiralParameter res;
@@ -242,16 +281,30 @@ SpiralParameter solveIteratively(const SpiralPoint& start, const SpiralPoint& go
 
 SpiralParameter getParameter(const SpiralPoint& start, const SpiralPoint& goal, SpiralParameter* init, size_t maxItrNum) {
 
+  // Same point guard
+  double dx = goal.x - start.x;
+  double dy = goal.y - start.y;
+  if (isNearZero(dx) && isNearZero(dy)) {
+    SpiralParameter p;
+    p.length = 0.0;
+    p.initCurv = 0.0;
+    p.dCurv = 0.0;
+    if (init) *init = p;
+    return p;
+  }
+
   SpiralParameter est, p2;
   ShapeType stype = calcInitialEstimate(start, goal, est, p2);
   est.dCurv = 0.0;
   if (init)
     *init = est;
-  
+
   if (stype == BIARC) {
     est = solveIteratively(start, goal, est, maxItrNum);
 
-    est.dCurv = 2.0 * (goal.t - start.t - (est.initCurv * est.length)) / est.length / est.length;
+    if (!isNearZero(est.length)) {
+      est.dCurv = 2.0 * (goal.t - start.t - (est.initCurv * est.length)) / est.length / est.length;
+    }
   }
 
   return est;
